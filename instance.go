@@ -19,7 +19,9 @@ type Instance struct {
 var connectionPool map[string]*Instance
 
 // ReplicationStatus represents the replication status between to instance.
+//
 // The judgement is according to the result of `SHOW SLAVE STATUS` and `SHOW MASTER STATUS`.
+//
 // Comparing the binlog file and binlog positions between master and slave
 type ReplicationStatus int
 
@@ -58,11 +60,17 @@ const (
 )
 
 // Register registers the instance of endpoint with opening the connection with user 'dbaUser', password 'dbaPassword'.
+//
 // 'replUser' and 'replPassword' are used to be established replication by other endpoints.
+//
 // 'params' are the k-v params appending to go-mysql-driver connection string.
+//
 // 'dbaUser' should have the following privileges at least: RELOAD, PROCESS, SUPER, REPLICATION CLIENT, REPLICATION SLAVE.
+//
 // 'replUser' should have the following privileges at least: PROCESS, REPLICATION SLAVE.
+//
 // 'endpoint' show have the form "host:port"
+//
 // If the final connection string generated is invalid, an error will be returned
 func Register(endpoint, dbaUser, dbaPassword, replUser, replPassword string, params map[string]string) error {
 	if _, exist := connectionPool[endpoint]; !exist {
