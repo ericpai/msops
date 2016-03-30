@@ -17,8 +17,6 @@ type Instance struct {
 	connection    *sql.DB
 }
 
-var connectionPool map[string]*Instance
-
 // ReplicationStatus represents the replication status between to instance.
 //
 // The judgement is according to the result of `SHOW SLAVE STATUS` and `SHOW MASTER STATUS`.
@@ -60,7 +58,10 @@ const (
 	driverName = "mysql"
 )
 
-var errNotRegistered = errors.New("the instance is not registered")
+var (
+	connectionPool   map[string]*Instance
+	errNotRegistered = errors.New("the instance is not registered")
+)
 
 // Register registers the instance of endpoint with opening the connection with user 'dbaUser', password 'dbaPassword'.
 //
