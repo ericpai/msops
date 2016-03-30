@@ -1,6 +1,6 @@
 package msops
 
-// Process represents one row data of processlist
+// Process represents one row data of processlist.
 // Based on 5.6.27-log MySQL Community Server.
 //
 // Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/show-processlist.html
@@ -15,7 +15,7 @@ type Process struct {
 	Info    string
 }
 
-// MasterStatus represents the master status of one endpoint
+// MasterStatus represents the master status of one endpoint.
 // Based on 5.6.27-log MySQL Community Server.
 //
 // Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/show-master-status.html

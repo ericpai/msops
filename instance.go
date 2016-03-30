@@ -21,7 +21,7 @@ type Instance struct {
 //
 // The judgement is according to the result of `SHOW SLAVE STATUS` and `SHOW MASTER STATUS`.
 //
-// Comparing the binlog file and binlog positions between master and slave
+// Comparing the binlog file and binlog positions between master and slave.
 type ReplicationStatus int
 
 const (
@@ -73,7 +73,7 @@ var (
 //
 // 'replUser' should have the following privileges at least: PROCESS, REPLICATION SLAVE.
 //
-// 'endpoint' show have the form "host:port"
+// 'endpoint' show have the form "host:port".
 //
 // If the final connection string generated is invalid, an error will be returned
 func Register(endpoint, dbaUser, dbaPassword, replUser, replPassword string, params map[string]string) error {

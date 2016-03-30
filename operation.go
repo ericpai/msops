@@ -22,7 +22,7 @@ func ResetSlave(endpoint string, resetAll bool) error {
 	return err
 }
 
-// StartSlave executes "START SLAVE" at the endpoint
+// StartSlave executes "START SLAVE" at the endpoint.
 func StartSlave(endpoint string) error {
 	var slaveInst *Instance
 	var exists bool
@@ -33,7 +33,7 @@ func StartSlave(endpoint string) error {
 	return err
 }
 
-// StopSlave executes "STOP SLAVE" at the endpoint
+// StopSlave executes "STOP SLAVE" at the endpoint.
 func StopSlave(endpoint string) error {
 	var slaveInst *Instance
 	var exists bool
@@ -44,8 +44,8 @@ func StopSlave(endpoint string) error {
 	return err
 }
 
-// ChangeMasterTo makes slaveEndpoint as a slave of masterEndpoint from now on. Use MASTER_AUTO_POSITION=1
-// instead of specifying the binlog file and position if useGTID is true.
+// ChangeMasterTo makes slaveEndpoint as a slave of masterEndpoint from now on.
+// Use MASTER_AUTO_POSITION=1 instead of specifying the binlog file and position if useGTID is true.
 func ChangeMasterTo(slaveEndpoint, masterEndpoint string, useGTID bool) error {
 	var slaveInst, masterInst *Instance
 	var exists bool
@@ -72,7 +72,7 @@ func ChangeMasterTo(slaveEndpoint, masterEndpoint string, useGTID bool) error {
 	return err
 }
 
-// GetInnoDBStatus executes "SHOW engine InnoDB STATUS" and returns the 'Status' field
+// GetInnoDBStatus executes "SHOW engine InnoDB STATUS" and returns the 'Status' field.
 func GetInnoDBStatus(endpoint string) (string, error) {
 	var dataSet []map[string]interface{}
 	var err error
@@ -87,7 +87,7 @@ func GetInnoDBStatus(endpoint string) (string, error) {
 	return result, nil
 }
 
-// GetSlaveStatus executes "SHOW SLAVE STATUS" and returns the resultset
+// GetSlaveStatus executes "SHOW SLAVE STATUS" and returns the resultset.
 func GetSlaveStatus(endpoint string) (SlaveStatus, error) {
 	var (
 		dataSet []map[string]interface{}
@@ -157,7 +157,7 @@ func GetSlaveStatus(endpoint string) (SlaveStatus, error) {
 	return result, nil
 }
 
-// GetMasterStatus executes "SHOW MASTER STATUS" and returns the resultset
+// GetMasterStatus executes "SHOW MASTER STATUS" and returns the resultset.
 func GetMasterStatus(endpoint string) (MasterStatus, error) {
 	var dataSet []map[string]interface{}
 	var err error
@@ -173,7 +173,7 @@ func GetMasterStatus(endpoint string) (MasterStatus, error) {
 	return result, err
 }
 
-// GetGlobalVariables executes "SHOW GLOBAL VARIABLES LIKE pattern" and returns the resultset
+// GetGlobalVariables executes "SHOW GLOBAL VARIABLES LIKE pattern" and returns the resultset.
 func GetGlobalVariables(endpoint, pattern string) (map[string]interface{}, error) {
 	var dataSet []map[string]interface{}
 	var err error
@@ -187,7 +187,7 @@ func GetGlobalVariables(endpoint, pattern string) (map[string]interface{}, error
 	return result, nil
 }
 
-// SetGlobalVariable executes the statement 'SET GLOBAL key=value'
+// SetGlobalVariable executes the statement 'SET GLOBAL key=value'.
 func SetGlobalVariable(endpoint, key string, value interface{}) error {
 	var inst *Instance
 	var exists bool
@@ -200,7 +200,7 @@ func SetGlobalVariable(endpoint, key string, value interface{}) error {
 	return nil
 }
 
-// GetProcessList executes "SHOW PROCESSLIST" and returns the resultset
+// GetProcessList executes "SHOW PROCESSLIST" and returns the resultset.
 func GetProcessList(endpoint string) ([]Process, error) {
 	var dataSet []map[string]interface{}
 	var err error
@@ -225,7 +225,7 @@ func GetProcessList(endpoint string) ([]Process, error) {
 	return processes, nil
 }
 
-// KillProcesses kills all the connection threads except the user is in whiteUsers
+// KillProcesses kills all the connection threads except the user is in whiteUsers.
 func KillProcesses(endpoint string, whiteUsers ...string) error {
 	var inst *Instance
 	var exists bool

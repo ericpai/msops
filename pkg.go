@@ -1,4 +1,4 @@
-// Package msops implements series of mysql ops methods
+// Package msops implements series of mysql ops methods.
 package msops
 
 import (
