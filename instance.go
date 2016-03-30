@@ -2,6 +2,7 @@ package msops
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -58,6 +59,8 @@ const (
 
 	driverName = "mysql"
 )
+
+var errNotRegistered = errors.New("the instance is not registered")
 
 // Register registers the instance of endpoint with opening the connection with user 'dbaUser', password 'dbaPassword'.
 //
