@@ -17,7 +17,7 @@ addons:
         - mysql-client-5.6
 
 before_install:
-    - cat /etc/hosts 
+    - cat /etc/hosts
     - docker pull mysql/mysql-server:5.6.29
     - docker run --name mysql_1 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 127.0.0.1:3301:3306 -d mysql/mysql-server:5.6.29 --log-bin=binlog --read-only=1 --skip-name-resolve
     - docker run --name mysql_2 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 127.0.0.1:3302:3306 -d mysql/mysql-server:5.6.29 --log-bin=binlog --read-only=1 --skip-name-resolve
@@ -26,6 +26,7 @@ before_install:
 
 
 install:
+    - sleep 15
     - mysql -uroot -h127.0.0.1 -P3301 < prepare.sql
     - mysql -uroot -h127.0.0.1 -P3302 < prepare.sql
     - mysql -uroot -h127.0.0.1 -P3303 < prepare.sql
