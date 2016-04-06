@@ -3,9 +3,9 @@ package msops
 import "testing"
 
 const (
-	testEndpoint1 = "127.0.0.1:3306"
-	testEndpoint2 = "127.0.0.1:3307"
-	testEndpoint3 = "127.0.0.1:3308"
+	testEndpoint1 = "127.0.0.1:3301"
+	testEndpoint2 = "127.0.0.1:3302"
+	testEndpoint3 = "127.0.0.1:3303"
 	testDBAUser   = "dba"
 	testDBAPass   = "dba"
 	testReplUser  = "repl"
