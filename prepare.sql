@@ -9,6 +9,6 @@ CREATE TABLE tbl_test (
     id int primary key,
     name varchar(20) NOT NULL
 );
-INSERT INTO TABLE `tbl_test` VALUES(1, "hello");
-INSERT INTO TABLE `tbl_test` VALUES(2, "world");
+INSERT INTO `tbl_test` VALUES(1, "hello");
+INSERT INTO `tbl_test` VALUES(2, "world");
 FLUSH PRIVILEGES;
