@@ -1,4 +1,4 @@
-# msops
+# msops [![Build Status](https://travis-ci.org/EricPai/msops.svg?branch=master)](https://travis-ci.org/EricPai/msops)
 A Go library for MySQL Ops. Based on [go-sql-driver](https://github.com/go-sql-driver/mysql).
 
 ## Requirements
