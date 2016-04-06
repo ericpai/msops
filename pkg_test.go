@@ -1,6 +1,9 @@
 package msops
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 const (
 	testEndpoint1 = "127.0.0.1:3301"
@@ -18,4 +21,5 @@ func TestMain(m *testing.M) {
 	Register(testEndpoint1, testDBAUser, testDBAPass, testReplUser, testReplPass, testParams)
 	Register(testEndpoint2, testDBAUser, testDBAPass, testReplUser, testReplPass, testParams)
 	Register(testEndpoint3, testDBAUser, testDBAPass, testReplUser, testReplPass, testParams)
+	os.Exit(m.Run())
 }
