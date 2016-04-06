@@ -3,6 +3,7 @@ package msops
 import (
 	"database/sql"
 	"net"
+	"strconv"
 )
 
 // ResetSlave executes "RESET SLAVE ALL" if resetAll is true.
@@ -82,7 +83,7 @@ func GetInnoDBStatus(endpoint string) (string, error) {
 	var result string
 	// There's at most one row in the resultset of "SHOW SLAVE STATUS"
 	if len(dataSet) == 1 {
-		result = dataSet[0]["Status"].(string)
+		result = getString(dataSet[0]["Status"])
 	}
 	return result, nil
 }
@@ -99,60 +100,60 @@ func GetSlaveStatus(endpoint string) (SlaveStatus, error) {
 	}
 	// There's at most one row in the resultset of "SHOW SLAVE STATUS"
 	if len(dataSet) == 1 {
-		result.SlaveIOState = dataSet[0]["Slave_IO_State"].(string)
-		result.MasterHost = dataSet[0]["Master_Host"].(string)
-		result.MasterUser = dataSet[0]["Master_User"].(string)
-		result.MasterPort = dataSet[0]["Master_Port"].(int)
-		result.ConnectRetry = dataSet[0]["Connect_Retry"].(string)
-		result.MasterLogFile = dataSet[0]["Master_Log_File"].(string)
-		result.ReadMasterLogPos = dataSet[0]["Read_Master_Log_Pos"].(int)
-		result.RelayLogFile = dataSet[0]["Relay_Log_File"].(string)
-		result.RelayLogPos = dataSet[0]["Relay_Log_Pos"].(int)
-		result.RelayMasterLogFile = dataSet[0]["Relay_Master_Log_File"].(string)
-		result.SlaveIORunning = dataSet[0]["Slave_IO_Running"].(string)
-		result.SlaveSQLRunning = dataSet[0]["Slave_SQL_Running"].(string)
-		result.ReplicateDoDB = dataSet[0]["Replicate_Do_DB"].(string)
-		result.ReplicateIgnoreDB = dataSet[0]["Replicate_Ignore_DB"].(string)
-		result.ReplicateDoTable = dataSet[0]["Replicate_Do_Table"].(string)
-		result.ReplicateIgnoreTable = dataSet[0]["Replicate_Ignore_Table"].(string)
-		result.ReplicateWildDoTable = dataSet[0]["Replicate_Wild_Do_Table"].(string)
-		result.ReplicateWildIgnoreTable = dataSet[0]["Replicate_Wild_Ignore_Table"].(string)
-		result.LastErrno = dataSet[0]["Last_Errno"].(int)
-		result.LastError = dataSet[0]["Last_Error"].(string)
-		result.SkipCounter = dataSet[0]["Skip_Counter"].(int)
-		result.ExecMasterLogPos = dataSet[0]["Exec_Master_Log_Pos"].(int)
-		result.RelayLogSpace = dataSet[0]["Relay_Log_Space"].(int)
-		result.UntilCondition = dataSet[0]["Until_Condition"].(string)
-		result.UntilLogFile = dataSet[0]["Until_Log_File"].(string)
-		result.UntilLogPos = dataSet[0]["Until_Log_Pos"].(int)
-		result.MasterSSLAllowed = dataSet[0]["Master_SSL_Allowed"].(string)
-		result.MasterSSLCAFile = dataSet[0]["Master_SSL_CA_File"].(string)
-		result.MasterSSLCAPath = dataSet[0]["Master_SSL_CA_Path"].(string)
-		result.MasterSSLCert = dataSet[0]["Master_SSL_Cert"].(string)
-		result.MasterSSLCipher = dataSet[0]["Master_SSL_Cipher"].(string)
-		result.MasterSSLKey = dataSet[0]["Master_SSL_Key"].(string)
-		result.SecondsBehindMaster = dataSet[0]["Seconds_Behind_Master"].(int)
-		result.MasterSSLVerifyServerCert = dataSet[0]["Master_SSL_Verify_Server_Cert"].(string)
-		result.LastIOErrno = dataSet[0]["Last_IO_Errno"].(int)
-		result.LastIOError = dataSet[0]["Last_IO_Error"].(string)
-		result.LastSQLErrno = dataSet[0]["Last_SQL_Errno"].(int)
-		result.LastSQLError = dataSet[0]["Last_SQL_Error"].(string)
-		result.ReplicateIgnoreServerIds = dataSet[0]["Replicate_Ignore_Server_Ids"].(string)
-		result.MasterServerID = dataSet[0]["Master_Server_Id"].(int)
-		result.MasterUUID = dataSet[0]["Master_UUID"].(string)
-		result.MasterInfoFile = dataSet[0]["Master_Info_File"].(string)
-		result.SQLDelay = dataSet[0]["SQL_Delay"].(int)
-		result.SQLRemainingDelay = dataSet[0]["SQL_Remaining_Delay"].(string)
-		result.SlaveSQLRunningState = dataSet[0]["Slave_SQL_Running_State"].(string)
-		result.MasterRetryCount = dataSet[0]["Master_Retry_Count"].(int)
-		result.MasterBind = dataSet[0]["Master_Bind"].(string)
-		result.LastIOErrorTimestamp = dataSet[0]["Last_IO_Error_Timestamp"].(string)
-		result.LastSQLErrorTimestamp = dataSet[0]["Last_SQL_Error_Timestamp"].(string)
-		result.MasterSSLCrl = dataSet[0]["Master_SSL_Crl"].(string)
-		result.MasterSSLCrlpath = dataSet[0]["Master_SSL_Crlpath"].(string)
-		result.RetrievedGtidSet = dataSet[0]["Retrieved_Gtid_Set"].(string)
-		result.ExecutedGtidSet = dataSet[0]["Executed_Gtid_Set"].(string)
-		result.AutoPosition = dataSet[0]["Auto_Position"].(bool)
+		result.SlaveIOState = getString(dataSet[0]["Slave_IO_State"])
+		result.MasterHost = getString(dataSet[0]["Master_Host"])
+		result.MasterUser = getString(dataSet[0]["Master_User"])
+		result.MasterPort = getInt(dataSet[0]["Master_Port"])
+		result.ConnectRetry = getString(dataSet[0]["Connect_Retry"])
+		result.MasterLogFile = getString(dataSet[0]["Master_Log_File"])
+		result.ReadMasterLogPos = getInt(dataSet[0]["Read_Master_Log_Pos"])
+		result.RelayLogFile = getString(dataSet[0]["Relay_Log_File"])
+		result.RelayLogPos = getInt(dataSet[0]["Relay_Log_Pos"])
+		result.RelayMasterLogFile = getString(dataSet[0]["Relay_Master_Log_File"])
+		result.SlaveIORunning = getString(dataSet[0]["Slave_IO_Running"])
+		result.SlaveSQLRunning = getString(dataSet[0]["Slave_SQL_Running"])
+		result.ReplicateDoDB = getString(dataSet[0]["Replicate_Do_DB"])
+		result.ReplicateIgnoreDB = getString(dataSet[0]["Replicate_Ignore_DB"])
+		result.ReplicateDoTable = getString(dataSet[0]["Replicate_Do_Table"])
+		result.ReplicateIgnoreTable = getString(dataSet[0]["Replicate_Ignore_Table"])
+		result.ReplicateWildDoTable = getString(dataSet[0]["Replicate_Wild_Do_Table"])
+		result.ReplicateWildIgnoreTable = getString(dataSet[0]["Replicate_Wild_Ignore_Table"])
+		result.LastErrno = getInt(dataSet[0]["Last_Errno"])
+		result.LastError = getString(dataSet[0]["Last_Error"])
+		result.SkipCounter = getInt(dataSet[0]["Skip_Counter"])
+		result.ExecMasterLogPos = getInt(dataSet[0]["Exec_Master_Log_Pos"])
+		result.RelayLogSpace = getInt(dataSet[0]["Relay_Log_Space"])
+		result.UntilCondition = getString(dataSet[0]["Until_Condition"])
+		result.UntilLogFile = getString(dataSet[0]["Until_Log_File"])
+		result.UntilLogPos = getInt(dataSet[0]["Until_Log_Pos"])
+		result.MasterSSLAllowed = getString(dataSet[0]["Master_SSL_Allowed"])
+		result.MasterSSLCAFile = getString(dataSet[0]["Master_SSL_CA_File"])
+		result.MasterSSLCAPath = getString(dataSet[0]["Master_SSL_CA_Path"])
+		result.MasterSSLCert = getString(dataSet[0]["Master_SSL_Cert"])
+		result.MasterSSLCipher = getString(dataSet[0]["Master_SSL_Cipher"])
+		result.MasterSSLKey = getString(dataSet[0]["Master_SSL_Key"])
+		result.SecondsBehindMaster = getInt(dataSet[0]["Seconds_Behind_Master"])
+		result.MasterSSLVerifyServerCert = getString(dataSet[0]["Master_SSL_Verify_Server_Cert"])
+		result.LastIOErrno = getInt(dataSet[0]["Last_IO_Errno"])
+		result.LastIOError = getString(dataSet[0]["Last_IO_Error"])
+		result.LastSQLErrno = getInt(dataSet[0]["Last_SQL_Errno"])
+		result.LastSQLError = getString(dataSet[0]["Last_SQL_Error"])
+		result.ReplicateIgnoreServerIds = getString(dataSet[0]["Replicate_Ignore_Server_Ids"])
+		result.MasterServerID = getInt(dataSet[0]["Master_Server_Id"])
+		result.MasterUUID = getString(dataSet[0]["Master_UUID"])
+		result.MasterInfoFile = getString(dataSet[0]["Master_Info_File"])
+		result.SQLDelay = getInt(dataSet[0]["SQL_Delay"])
+		result.SQLRemainingDelay = getString(dataSet[0]["SQL_Remaining_Delay"])
+		result.SlaveSQLRunningState = getString(dataSet[0]["Slave_SQL_Running_State"])
+		result.MasterRetryCount = getInt(dataSet[0]["Master_Retry_Count"])
+		result.MasterBind = getString(dataSet[0]["Master_Bind"])
+		result.LastIOErrorTimestamp = getString(dataSet[0]["Last_IO_Error_Timestamp"])
+		result.LastSQLErrorTimestamp = getString(dataSet[0]["Last_SQL_Error_Timestamp"])
+		result.MasterSSLCrl = getString(dataSet[0]["Master_SSL_Crl"])
+		result.MasterSSLCrlpath = getString(dataSet[0]["Master_SSL_Crlpath"])
+		result.RetrievedGtidSet = getString(dataSet[0]["Retrieved_Gtid_Set"])
+		result.ExecutedGtidSet = getString(dataSet[0]["Executed_Gtid_Set"])
+		result.AutoPosition = getBool(dataSet[0]["Auto_Position"])
 	}
 	return result, nil
 }
@@ -164,25 +165,25 @@ func GetMasterStatus(endpoint string) (MasterStatus, error) {
 	var result MasterStatus
 	if dataSet, err = readDataSet(endpoint, "SHOW MASTER STATUS"); err == nil {
 		// There should be exactly one row in the resultset of "SHOW MASTER STATUS"
-		result.File = dataSet[0]["File"].(string)
-		result.Position = dataSet[0]["Position"].(int)
-		result.ExecutedGtidSet = dataSet[0]["Executed_Gtid_Set"].(string)
-		result.BinlogDoDB = dataSet[0]["Binlog_Do_DB"].(string)
-		result.BinlogIgnoreDB = dataSet[0]["Binlog_Ignore_DB"].(string)
+		result.File = getString(dataSet[0]["File"])
+		result.Position = getInt(dataSet[0]["Position"])
+		result.ExecutedGtidSet = getString(dataSet[0]["Executed_Gtid_Set"])
+		result.BinlogDoDB = getString(dataSet[0]["Binlog_Do_DB"])
+		result.BinlogIgnoreDB = getString(dataSet[0]["Binlog_Ignore_DB"])
 	}
 	return result, err
 }
 
 // GetGlobalVariables executes "SHOW GLOBAL VARIABLES LIKE pattern" and returns the resultset.
-func GetGlobalVariables(endpoint, pattern string) (map[string]interface{}, error) {
+func GetGlobalVariables(endpoint, pattern string) (map[string]string, error) {
 	var dataSet []map[string]interface{}
 	var err error
 	if dataSet, err = readDataSet(endpoint, "SHOW GLOBAL VARIABLES LIKE ?", pattern); err != nil {
 		return nil, err
 	}
-	result := make(map[string]interface{})
+	result := make(map[string]string)
 	for _, row := range dataSet {
-		result[row["Variable_name"].(string)] = row["Value"]
+		result[getString(row["Variable_name"])] = getString(row["Value"])
 	}
 	return result, nil
 }
@@ -211,14 +212,14 @@ func GetProcessList(endpoint string) ([]Process, error) {
 	for _, row := range dataSet {
 		processes = append(processes,
 			Process{
-				ID:      row["Id"].(int),
-				User:    row["User"].(string),
-				Host:    row["Host"].(string),
-				DB:      row["db"].(string),
-				Command: row["Command"].(string),
-				Time:    row["Time"].(int),
-				State:   row["State"].(string),
-				Info:    row["Info"].(string),
+				ID:      getInt(row["Id"]),
+				User:    getString(row["User"]),
+				Host:    getString(row["Host"]),
+				DB:      getString(row["db"]),
+				Command: getString(row["Command"]),
+				Time:    getInt(row["Time"]),
+				State:   getString(row["State"]),
+				Info:    getString(row["Info"]),
 			},
 		)
 	}
@@ -263,7 +264,7 @@ func readDataSet(endpoint, query string, args ...interface{}) ([]map[string]inte
 	var err error
 	var result *sql.Rows
 	var columnName []string
-	if result, err = inst.connection.Query(query, args); err != nil {
+	if result, err = inst.connection.Query(query, args...); err != nil {
 		return nil, err
 	}
 	defer result.Close()
@@ -287,4 +288,19 @@ func readDataSet(endpoint, query string, args ...interface{}) ([]map[string]inte
 		dataset = append(dataset, row)
 	}
 	return dataset, nil
+}
+
+func getString(data interface{}) string {
+	bytesArr := data.(*sql.RawBytes)
+	return string(*bytesArr)
+}
+
+func getInt(data interface{}) int {
+	res, _ := strconv.Atoi(getString(data))
+	return res
+}
+
+func getBool(data interface{}) bool {
+	res, _ := strconv.ParseBool(getString(data))
+	return res
 }

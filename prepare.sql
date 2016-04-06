@@ -10,5 +10,6 @@ CREATE TABLE tbl_test (
     name varchar(20) NOT NULL
 );
 INSERT INTO `tbl_test` VALUES(1, "hello");
-INSERT INTO `tbl_test` VALUES(2, "world");
+INSERT INTO `tbl_test` VALUES(10000, "world");
+INSERT INTO `tbl_test` VALUES(10000000, "bigest");
 FLUSH PRIVILEGES;
