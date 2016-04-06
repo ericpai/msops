@@ -3,8 +3,7 @@ sudo: false
 language: go
 
 go:
-    - 1.5.3
-    - tip
+    - 1.6
 
 services:
     - docker

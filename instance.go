@@ -59,7 +59,7 @@ const (
 )
 
 var (
-	connectionPool   map[string]*Instance
+	connectionPool   = make(map[string]*Instance)
 	errNotRegistered = errors.New("the instance is not registered")
 )
 
