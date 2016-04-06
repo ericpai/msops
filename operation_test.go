@@ -21,3 +21,11 @@ func TestReadDataSet(t *testing.T) {
 		}
 	}
 }
+
+func TestGetMasterStatus(t *testing.T) {
+	if masterSt, err := GetMasterStatus(testEndpoint1); err != nil {
+		t.Errorf("Test GetMasterStatus error: %s", err.Error())
+	} else if masterSt.File != "binlog.000001" {
+		t.Errorf("Test GetMasterStatus failed: actual master log file %s, expected binlog.000001", masterSt.File)
+	}
+}
