@@ -1,0 +1,27 @@
+sudo: required
+
+language: go
+
+go:
+    - 1.5.3
+    - tip
+
+services:
+    - docker
+
+before_install:
+    - docker pull mysql/mysql-server:5.6.29
+    - docker run --name mysql_1 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mysql/mysql-server:5.6.29
+    - docker run --name mysql_2 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3307:3306 -d mysql/mysql-server:5.6.29
+    - docker run --name mysql_3 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3308:3306 -d mysql/mysql-server:5.6.29
+    - docker ps -a
+    - sudo apt-get install -y mysql-community-client
+
+install:
+    - mysql -uroot -h127.0.0.1 -P3306 < prepare.sql
+    - mysql -uroot -h127.0.0.1 -P3307 < prepare.sql
+    - mysql -uroot -h127.0.0.1 -P3308 < prepare.sql
+
+
+script:
+    - go test ./...
