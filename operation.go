@@ -53,15 +53,19 @@ func StopSlave(endpoint string) error {
 func ChangeMasterTo(slaveEndpoint, masterEndpoint string, useGTID bool) error {
 	var slaveInst, masterInst *Instance
 	var exists bool
-	var host, port string
+	var host, portStr string
 	var err error
+	var port int
 	if slaveInst, exists = connectionPool[slaveEndpoint]; !exists {
 		return errNotRegistered
 	}
 	if masterInst, exists = connectionPool[masterEndpoint]; !exists {
 		return errNotRegistered
 	}
-	if host, port, err = net.SplitHostPort(masterEndpoint); err != nil {
+	if host, portStr, err = net.SplitHostPort(masterEndpoint); err != nil {
+		return err
+	}
+	if port, err = strconv.Atoi(portStr); err != nil {
 		return err
 	}
 	if useGTID {
@@ -70,7 +74,7 @@ func ChangeMasterTo(slaveEndpoint, masterEndpoint string, useGTID bool) error {
 	} else if masterSt, e := GetMasterStatus(masterEndpoint); e != nil {
 		return e
 	} else {
-		_, err = slaveInst.connection.Exec("CHANGE MASTER TO MASTER_HOST=?, MASTER_USER=?, MASTER_PASSWORD=?, MASTER_LOG_FILE=?, MASTER_LOG_POS=?",
+		_, err = slaveInst.connection.Exec("CHANGE MASTER TO MASTER_HOST=?, MASTER_PORT=?, MASTER_USER=?, MASTER_PASSWORD=?, MASTER_LOG_FILE=?, MASTER_LOG_POS=?",
 			host, port, masterInst.replUser, masterInst.replPassword, masterSt.File, masterSt.Position)
 	}
 	return err

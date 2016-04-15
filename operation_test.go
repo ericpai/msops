@@ -1,6 +1,7 @@
 package msops
 
 import (
+	"net"
 	"strconv"
 	"testing"
 )
@@ -95,4 +96,24 @@ func TestGetInndoDBStatus(t *testing.T) {
 	if _, err := GetInnoDBStatus(badEndpoint); err == nil {
 		t.Error("Get badEndpoint innodb engine status should cause error")
 	}
+}
+
+func TestChangeMasterTo(t *testing.T) {
+	if ChangeMasterTo(testEndpoint2, unregisteredEndpoint, false) != errNotRegistered ||
+		ChangeMasterTo(unregisteredEndpoint, testEndpoint1, false) != errNotRegistered {
+		t.Error("Test ChangeMasterTo unregisteredEndpoint error: should return errNotRegistered")
+	}
+	if ChangeMasterTo(testEndpoint2, badEndpoint, false) == nil ||
+		ChangeMasterTo(badEndpoint, testEndpoint1, false) == nil {
+		t.Error("Test ChangeMasterTo badEndpoint error: should return error")
+	}
+
+	if err := ChangeMasterTo(testEndpoint2, testEndpoint1, false); err != nil {
+		t.Errorf("Test ChangeMasterTo without GTID testEndpoint2->testEndpoint1 error: %s", err.Error())
+	} else if slaveSt, err := GetSlaveStatus(testEndpoint2); err != nil {
+		t.Errorf("Test ChangeMasterTo without GTID testEndpoint2 GetSlaveStatus error: %s", err.Error())
+	} else if masterEP := net.JoinHostPort(slaveSt.MasterHost, strconv.Itoa(slaveSt.MasterPort)); masterEP != testEndpoint1 {
+		t.Errorf("Test ChangeMasterTo without GTID testEndpoint2 master endpoint error: actual %s, expected %s", masterEP, testEndpoint1)
+	}
+	ResetSlave(testEndpoint2, true)
 }

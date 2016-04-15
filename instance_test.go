@@ -37,7 +37,3 @@ func TestCheckInstanceStatus(t *testing.T) {
 		t.Errorf("UnregisteredEndpoint instance status error: actual %d, expect %d", inst, InstanceUnregistered)
 	}
 }
-
-func TestCheckReplicationStatus(t *testing.T) {
-
-}
