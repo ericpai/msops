@@ -87,3 +87,13 @@ type SlaveStatus struct {
 	ExecutedGtidSet           string
 	AutoPosition              bool
 }
+
+// InnoDBStatus represents the innodb engine status of one endpoint.
+// Based on 5.6.27-log MySQL Community Server.
+//
+// Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/innodb-standard-monitor.html
+type InnoDBStatus struct {
+	InnodbMutexSpinWaits  int
+	InnodbMutexSpinRounds int
+	InnodbMutexOSWaits    int
+}

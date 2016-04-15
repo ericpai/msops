@@ -49,3 +49,11 @@ func TestGetGlobalVariables(t *testing.T) {
 		t.Errorf("Test GetGlobalVariables failed: actual port is %s, expected 2", val)
 	}
 }
+
+func TestGetInndoDBStatus(t *testing.T) {
+
+}
+
+func TestReplicaRelatived(t *testing.T) {
+
+}

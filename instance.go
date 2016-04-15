@@ -4,10 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
-// Instance records the connect information
+// Instance records the connect information.
 type Instance struct {
 	dbaUser       string
 	dbaPassword   string
@@ -24,16 +27,27 @@ type Instance struct {
 // Comparing the binlog file and binlog positions between master and slave.
 type ReplicationStatus int
 
+// InstanceStatus represents the running status of one instance.
+//
+// The judgement is according to the result of db.Conn.Ping().
+type InstanceStatus int
+
 const (
 	// ReplStatusOK implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are the same as the master's,
-	// 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'yes',
-	// 'Second_Behind_Master' equals to '0'.
+	// 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'Yes',
+	// 'Master_Log_File' and 'Master_Log_Position'equals to '0'.
 	ReplStatusOK ReplicationStatus = iota
+
+	// ReplStatusError implies that in the slave status of the slave instance,
+	// 'Master_Host' and 'Master_Port' are the same as the master's,
+	// 'Slave_SQL_Running' and 'Slave_IO_Running' are not both 'Yes',
+	// and 'Last_Error' is not empty.
+	ReplStatusError
 
 	// ReplStatusSyning implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are the same as the master's,
-	// 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'yes',
+	// 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'Yes',
 	// 'Second_Behind_Master' is larger than '0'.
 	ReplStatusSyning
 
@@ -42,25 +56,34 @@ const (
 	// and 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'no'.
 	ReplStatusPausing
 
-	// ReplStatusError implies that in the slave status of the slave instance,
-	// 'Master_Host' and 'Master_Port' are the same as the master's,
-	// 'Slave_SQL_Running' and 'Slave_IO_Running' are not both 'yes',
-	// and 'Last_Error' is not empty
-	ReplStatusError
-
 	// ReplStatusWrongMaster implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are not the same as the master's.
 	ReplStatusWrongMaster
 
-	// ReplStatusUnknown implies that we cann't connect to the slave instance
-	ReplStatusUnknown
+	// ReplStatusNone implies that the slave status of the endpoint is empty.
+	ReplStatusNone
 
-	driverName = "mysql"
+	// ReplStatusUnknown implies that we can't connect to the slave instance.
+	ReplStatusUnknown
 )
+
+const (
+	// InstanceOK implies that we can connect to the instance.
+	InstanceOK InstanceStatus = iota
+
+	// InstanceERROR implies that we can't connect to the instance.
+	InstanceERROR
+
+	// InstanceUnregistered implies that we haven't registered the instance.
+	InstanceUnregistered
+)
+
+const driverName = "mysql"
 
 var (
 	connectionPool   = make(map[string]*Instance)
 	errNotRegistered = errors.New("the instance is not registered")
+	emptySlaveStatus = SlaveStatus{}
 )
 
 // Register registers the instance of endpoint with opening the connection with user 'dbaUser', password 'dbaPassword'.
@@ -75,7 +98,7 @@ var (
 //
 // 'endpoint' show have the form "host:port".
 //
-// If the final connection string generated is invalid, an error will be returned
+// If the final connection string generated is invalid, an error will be returned.
 func Register(endpoint, dbaUser, dbaPassword, replUser, replPassword string, params map[string]string) error {
 	if _, exist := connectionPool[endpoint]; !exist {
 		if params == nil {
@@ -105,10 +128,57 @@ func Register(endpoint, dbaUser, dbaPassword, replUser, replPassword string, par
 	return nil
 }
 
-// Unregister deletes the information from msops's connection pool and close the connections to endpoint
+// Unregister deletes the information from msops's connection pool and close the connections to endpoint.
 func Unregister(endpoint string) {
 	if inst, exist := connectionPool[endpoint]; exist {
 		inst.connection.Close()
 	}
 	delete(connectionPool, endpoint)
+}
+
+// CheckInstance checks the status of a instance with the endpoint.
+func CheckInstance(endpoint string) InstanceStatus {
+	if inst, exist := connectionPool[endpoint]; exist {
+		if inst.connection.Ping() == nil {
+			return InstanceOK
+		}
+		return InstanceERROR
+	}
+	return InstanceUnregistered
+}
+
+// CheckReplication checks the replicaton status between slaveEndpoint and masterEndpoint.
+// Note that if one of slave or master is not registered,
+// or getting MasterStatus and SlaveStatus failed, ReplStatusUnknown is returned.
+func CheckReplication(slaveEndpoint, masterEndpoint string) ReplicationStatus {
+	if CheckInstance(slaveEndpoint) == InstanceUnregistered ||
+		CheckInstance(masterEndpoint) == InstanceUnregistered {
+		return ReplStatusUnknown
+	}
+	var masterStatus MasterStatus
+	var slaveStatus SlaveStatus
+	var err error
+	if masterStatus, err = GetMasterStatus(masterEndpoint); err != nil {
+		return ReplStatusUnknown
+	}
+	if slaveStatus, err = GetSlaveStatus(slaveEndpoint); err != nil {
+		return ReplStatusUnknown
+	}
+	if reflect.DeepEqual(emptySlaveStatus, slaveStatus) {
+		return ReplStatusNone
+	}
+	if net.JoinHostPort(slaveStatus.MasterHost, strconv.Itoa(slaveStatus.MasterPort)) != masterEndpoint {
+		return ReplStatusWrongMaster
+	}
+	if slaveStatus.LastErrno != 0 {
+		return ReplStatusError
+	}
+	if slaveStatus.SlaveSQLRunning == "No" && slaveStatus.SlaveIORunning == "No" {
+		return ReplStatusPausing
+	}
+	if slaveStatus.MasterLogFile != masterStatus.File ||
+		slaveStatus.ExecMasterLogPos != masterStatus.Position {
+		return ReplStatusSyning
+	}
+	return ReplStatusOK
 }

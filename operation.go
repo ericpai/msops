@@ -3,7 +3,9 @@ package msops
 import (
 	"database/sql"
 	"net"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 // ResetSlave executes "RESET SLAVE ALL" if resetAll is true.
@@ -74,18 +76,64 @@ func ChangeMasterTo(slaveEndpoint, masterEndpoint string, useGTID bool) error {
 }
 
 // GetInnoDBStatus executes "SHOW engine InnoDB STATUS" and returns the 'Status' field.
-func GetInnoDBStatus(endpoint string) (string, error) {
+func GetInnoDBStatus(endpoint string) (InnoDBStatus, error) {
 	var dataSet []map[string]interface{}
 	var err error
+	innodbStatus := InnoDBStatus{}
 	if dataSet, err = readDataSet(endpoint, "SHOW engine InnoDB STATUS"); err != nil {
-		return "", err
+		return innodbStatus, err
 	}
-	var result string
+
 	// There's at most one row in the resultset of "SHOW SLAVE STATUS"
 	if len(dataSet) == 1 {
-		result = getString(dataSet[0]["Status"])
+		lines := strings.Split(getString(dataSet[0]["Status"]), "\n")
+		var section string
+
+		for _, line := range lines {
+			switch {
+			case match("^BACKGROUND THREAD$", line):
+				section = "BACKGROUND THREAD"
+				continue
+			case match("^DEAD LOCK ERRORS$", line), match("^LATEST DETECTED DEADLOCK$", line):
+				section = "DEAD LOCK ERRORS"
+				continue
+			case match("^FOREIGN KEY CONSTRAINT ERRORS$", line), match("^LATEST FOREIGN KEY ERROR$", line):
+				section = "FOREIGN KEY CONSTRAINT ERRORS"
+				continue
+			case match("^SEMAPHORES$", line):
+				section = "SEMAPHORES"
+				continue
+			case match("^TRANSACTIONS$", line):
+				section = "TRANSACTIONS"
+				continue
+			case match("^FILE I/O$", line):
+				section = "FILE I/O"
+				continue
+			case match("^INSERT BUFFER AND ADAPTIVE HASH INDEX$", line):
+				section = "INSERT BUFFER AND ADAPTIVE HASH INDEX"
+				continue
+			case match("^LOG$", line):
+				section = "LOG"
+				continue
+			case match("^BUFFER POOL AND MEMORY$", line):
+				section = "BUFFER POOL AND MEMORY"
+				continue
+			case match("^ROW OPERATIONS$", line):
+				section = "ROW OPERATIONS"
+				continue
+			}
+
+			if section == "SEMAPHORES" {
+				matches := regexp.MustCompile(`^Mutex spin waits\s+(\d+),\s+rounds\s+(\d+),\s+OS waits\s+(\d+)`).FindStringSubmatch(line)
+				if len(matches) == 4 {
+					innodbStatus.InnodbMutexSpinWaits, _ = strconv.Atoi(matches[1])
+					innodbStatus.InnodbMutexSpinRounds, _ = strconv.Atoi(matches[2])
+					innodbStatus.InnodbMutexOSWaits, _ = strconv.Atoi(matches[3])
+				}
+			}
+		}
 	}
-	return result, nil
+	return innodbStatus, nil
 }
 
 // GetSlaveStatus executes "SHOW SLAVE STATUS" and returns the resultset.
@@ -303,4 +351,12 @@ func getInt(data interface{}) int {
 func getBool(data interface{}) bool {
 	res, _ := strconv.ParseBool(getString(data))
 	return res
+}
+
+func match(pattern, s string) bool {
+	matched, err := regexp.MatchString(pattern, s)
+	if err != nil {
+		return false
+	}
+	return matched
 }
