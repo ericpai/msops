@@ -34,38 +34,38 @@ type ReplicationStatus int
 type InstanceStatus int
 
 const (
-	// ReplStatusOK implies that in the slave status of the slave instance,
+	// ReplicationOK implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are the same as the master's,
 	// 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'Yes',
 	// 'Master_Log_File' and 'Master_Log_Position'equals to '0'.
-	ReplStatusOK ReplicationStatus = iota
+	ReplicationOK ReplicationStatus = iota
 
-	// ReplStatusError implies that in the slave status of the slave instance,
+	// ReplicationError implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are the same as the master's,
 	// 'Slave_SQL_Running' and 'Slave_IO_Running' are not both 'Yes',
 	// and 'Last_Error' is not empty.
-	ReplStatusError
+	ReplicationError
 
-	// ReplStatusSyning implies that in the slave status of the slave instance,
+	// ReplicationSyning implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are the same as the master's,
 	// 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'Yes',
 	// 'Second_Behind_Master' is larger than '0'.
-	ReplStatusSyning
+	ReplicationSyning
 
-	// ReplStatusPausing implies that in the slave status of the slave instance,
+	// ReplicationPausing implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are the same as the master's,
 	// and 'Slave_SQL_Running' and 'Slave_IO_Running' are both 'no'.
-	ReplStatusPausing
+	ReplicationPausing
 
-	// ReplStatusWrongMaster implies that in the slave status of the slave instance,
+	// ReplicationWrongMaster implies that in the slave status of the slave instance,
 	// 'Master_Host' and 'Master_Port' are not the same as the master's.
-	ReplStatusWrongMaster
+	ReplicationWrongMaster
 
-	// ReplStatusNone implies that the slave status of the endpoint is empty.
-	ReplStatusNone
+	// ReplicationNone implies that the slave status of the endpoint is empty.
+	ReplicationNone
 
-	// ReplStatusUnknown implies that we can't connect to the slave instance.
-	ReplStatusUnknown
+	// ReplicationUnknown implies that we can't connect to the slave instance.
+	ReplicationUnknown
 )
 
 const (
@@ -153,36 +153,36 @@ func CheckInstance(endpoint string) InstanceStatus {
 
 // CheckReplication checks the replicaton status between slaveEndpoint and masterEndpoint.
 // Note that if one of slave or master is not registered,
-// or getting MasterStatus and SlaveStatus failed, ReplStatusUnknown is returned.
+// or getting MasterStatus and SlaveStatus failed, ReplicationUnknown is returned.
 func CheckReplication(slaveEndpoint, masterEndpoint string) ReplicationStatus {
 	if CheckInstance(slaveEndpoint) == InstanceUnregistered ||
 		CheckInstance(masterEndpoint) == InstanceUnregistered {
-		return ReplStatusUnknown
+		return ReplicationUnknown
 	}
 	var masterStatus MasterStatus
 	var slaveStatus SlaveStatus
 	var err error
 	if masterStatus, err = GetMasterStatus(masterEndpoint); err != nil {
-		return ReplStatusUnknown
+		return ReplicationUnknown
 	}
 	if slaveStatus, err = GetSlaveStatus(slaveEndpoint); err != nil {
-		return ReplStatusUnknown
+		return ReplicationUnknown
 	}
 	if reflect.DeepEqual(emptySlaveStatus, slaveStatus) {
-		return ReplStatusNone
+		return ReplicationNone
 	}
 	if net.JoinHostPort(slaveStatus.MasterHost, strconv.Itoa(slaveStatus.MasterPort)) != masterEndpoint {
-		return ReplStatusWrongMaster
+		return ReplicationWrongMaster
 	}
 	if slaveStatus.LastErrno != 0 {
-		return ReplStatusError
+		return ReplicationError
 	}
 	if slaveStatus.SlaveSQLRunning == "No" && slaveStatus.SlaveIORunning == "No" {
-		return ReplStatusPausing
+		return ReplicationPausing
 	}
 	if slaveStatus.MasterLogFile != masterStatus.File ||
 		slaveStatus.ExecMasterLogPos != masterStatus.Position {
-		return ReplStatusSyning
+		return ReplicationSyning
 	}
-	return ReplStatusOK
+	return ReplicationOK
 }
