@@ -13,3 +13,13 @@ go get github.com/go-sql-driver/mysql
 ```bash
 go get github.com/ericpai/msops
 ```
+
+## Examples
+TODO
+
+
+## User Guide
+See API documentations [here](https://godoc.org/github.com/ericpai/msops).
+
+## Developer Guide
+TODO
