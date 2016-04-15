@@ -60,7 +60,7 @@ func TestGetGlobalVariables(t *testing.T) {
 		t.Errorf("Test GetGlobalVariables failed: actual port is %s, expected 2", val)
 	}
 
-	if _, err := GetMasterStatus(badEndpoint); err == nil {
+	if _, err := GetGlobalVariables(badEndpoint, "%%"); err == nil {
 		t.Error("Get badEndpoint global variables status should cause error")
 	}
 }
@@ -163,4 +163,24 @@ func TestStartStopResetSlave(t *testing.T) {
 		t.Errorf("Test ResetSlave with all testEndpoint1 error: %s", err.Error())
 	}
 
+}
+
+func TestGetGlobalStatus(t *testing.T) {
+	if portMap, err := GetGlobalStatus(testEndpoint1, "Bytes_received"); err != nil {
+		t.Errorf("Test GetGlobalStatus error: %s", err.Error())
+	} else if _, exist := portMap["Bytes_received"]; !exist {
+		t.Errorf("Test GetGlobalStatus failed: port is not existed")
+	} else if _, err := strconv.Atoi(portMap["Bytes_received"]); err != nil {
+		t.Errorf("Test GetGlobalStatus parse Bytes_received failed: %s ", err.Error())
+	}
+
+	if portMap, err := GetGlobalStatus(testEndpoint2, "%%Com%"); err != nil {
+		t.Errorf("Test GetGlobalStatus error: %s", err.Error())
+	} else if len(portMap) == 0 {
+		t.Errorf("Test GetGlobalStatus failed: server_id is not existed")
+	}
+
+	if _, err := GetGlobalStatus(badEndpoint, "%%"); err == nil {
+		t.Error("Get badEndpoint global status should cause error")
+	}
 }

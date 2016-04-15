@@ -227,6 +227,20 @@ func GetMasterStatus(endpoint string) (MasterStatus, error) {
 	return result, err
 }
 
+// GetGlobalStatus executes "SHOW GLOBAL STATUS LIKE pattern" and returns the resultset.
+func GetGlobalStatus(endpoint, pattern string) (map[string]string, error) {
+	var dataSet []map[string]interface{}
+	var err error
+	if dataSet, err = readDataSet(endpoint, "SHOW GLOBAL STATUS LIKE ?", pattern); err != nil {
+		return nil, err
+	}
+	result := make(map[string]string)
+	for _, row := range dataSet {
+		result[getString(row["Variable_name"])] = getString(row["Value"])
+	}
+	return result, nil
+}
+
 // GetGlobalVariables executes "SHOW GLOBAL VARIABLES LIKE pattern" and returns the resultset.
 func GetGlobalVariables(endpoint, pattern string) (map[string]string, error) {
 	var dataSet []map[string]interface{}
