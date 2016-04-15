@@ -1,5 +1,5 @@
 # msops
-[![Build Status](https://travis-ci.org/EricPai/msops.svg?branch=master)](https://travis-ci.org/EricPai/msops) [![codecov.io](https://codecov.io/github/EricPai/msops/coverage.svg?branch=master)](https://codecov.io/github/EricPai/msops?branch=master)
+[![Build Status](https://travis-ci.org/ericpai/msops.svg?branch=master)](https://travis-ci.org/ericpai/msops) [![codecov.io](https://codecov.io/github/ericpai/msops/coverage.svg?branch=master)](https://codecov.io/github/ericpai/msops?branch=master)
 
 A Go library for MySQL Ops. Based on [go-sql-driver](https://github.com/go-sql-driver/mysql).
 
