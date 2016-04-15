@@ -2,6 +2,7 @@ package msops
 
 import (
 	"database/sql"
+	"fmt"
 	"net"
 	"regexp"
 	"strconv"
@@ -124,7 +125,7 @@ func GetInnoDBStatus(endpoint string) (InnoDBStatus, error) {
 			}
 
 			if section == "SEMAPHORES" {
-				matches := regexp.MustCompile(`^Mutex spin waits\s+(\d+),\s+rounds\s+(\d+),\s+OS waits\s+(\d+)`).FindStringSubmatch(line)
+				matches := innodbSemaphoresExp.FindStringSubmatch(line)
 				if len(matches) == 4 {
 					innodbStatus.InnodbMutexSpinWaits, _ = strconv.Atoi(matches[1])
 					innodbStatus.InnodbMutexSpinRounds, _ = strconv.Atoi(matches[2])
@@ -243,7 +244,10 @@ func SetGlobalVariable(endpoint, key string, value interface{}) error {
 	if inst, exists = connectionPool[endpoint]; !exists {
 		return errNotRegistered
 	}
-	if _, err := inst.connection.Exec("SET GLOBAL ?=?", key, value); err != nil {
+	if !globalKeyExp.MatchString(key) {
+		return errKeyInvalid
+	}
+	if _, err := inst.connection.Exec(fmt.Sprintf("SET GLOBAL %s=?", key), value); err != nil {
 		return err
 	}
 	return nil

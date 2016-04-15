@@ -6,13 +6,15 @@ import (
 )
 
 const (
-	testEndpoint1 = "127.0.0.1:3301"
-	testEndpoint2 = "127.0.0.1:3302"
-	testEndpoint3 = "127.0.0.1:3303"
-	testDBAUser   = "dba"
-	testDBAPass   = "dba"
-	testReplUser  = "repl"
-	testReplPass  = "repl"
+	testEndpoint1        = "127.0.0.1:3301"
+	testEndpoint2        = "127.0.0.1:3302"
+	testEndpoint3        = "127.0.0.1:3303"
+	testDBAUser          = "dba"
+	testDBAPass          = "dba"
+	testReplUser         = "repl"
+	testReplPass         = "repl"
+	badEndpoint          = "321lp[edlswa;[d.;]]"
+	unregisteredEndpoint = "127.0.0.1:3300"
 )
 
 var testParams = make(map[string]string)

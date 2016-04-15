@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -81,9 +82,12 @@ const (
 const driverName = "mysql"
 
 var (
-	connectionPool   = make(map[string]*Instance)
-	errNotRegistered = errors.New("the instance is not registered")
-	emptySlaveStatus = SlaveStatus{}
+	connectionPool      = make(map[string]*Instance)
+	errNotRegistered    = errors.New("the instance is not registered")
+	errKeyInvalid       = errors.New("the key is not valid")
+	emptySlaveStatus    = SlaveStatus{}
+	innodbSemaphoresExp = regexp.MustCompile(`^Mutex spin waits\s+(\d+),\s+rounds\s+(\d+),\s+OS waits\s+(\d+)`)
+	globalKeyExp        = regexp.MustCompile(`^[_0-9a-zA-Z][_0-9a-zA-Z]*`)
 )
 
 // Register registers the instance of endpoint with opening the connection with user 'dbaUser', password 'dbaPassword'.

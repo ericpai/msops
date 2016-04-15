@@ -1,6 +1,9 @@
 package msops
 
-import "testing"
+import (
+	"strconv"
+	"testing"
+)
 
 func TestReadDataSet(t *testing.T) {
 	data, err := readDataSet(testEndpoint1, "SELECT * from data_test.tbl_test where id = ?", 10000)
@@ -22,6 +25,9 @@ func TestReadDataSet(t *testing.T) {
 			t.Errorf("Test readDataSet failed: actual value of col 'id' is %d, expected 1", actKey)
 		}
 	}
+	if _, err = readDataSet(badEndpoint, "SELECT * from data_test.tbl_test where id = ?", 10000); err == nil {
+		t.Error("BadEndpoint readDataSet should cause error")
+	}
 }
 
 func TestGetMasterStatus(t *testing.T) {
@@ -29,6 +35,10 @@ func TestGetMasterStatus(t *testing.T) {
 		t.Errorf("Test GetMasterStatus error: %s", err.Error())
 	} else if masterSt.File != "binlog.000001" {
 		t.Errorf("Test GetMasterStatus failed: actual master log file %s, expected binlog.000001", masterSt.File)
+	}
+
+	if _, err := GetMasterStatus(badEndpoint); err == nil {
+		t.Error("Get badEndpoint master status should cause error")
 	}
 }
 
@@ -48,12 +58,41 @@ func TestGetGlobalVariables(t *testing.T) {
 	} else if val != "2" {
 		t.Errorf("Test GetGlobalVariables failed: actual port is %s, expected 2", val)
 	}
+
+	if _, err := GetMasterStatus(badEndpoint); err == nil {
+		t.Error("Get badEndpoint global variables status should cause error")
+	}
+}
+
+func TestSetGlobalVariable(t *testing.T) {
+	expireLogsDays := 50
+	if err := SetGlobalVariable(testEndpoint1, "expire_logs_days", expireLogsDays); err != nil {
+		t.Errorf("Test SetGlobalVariable error: %s", err.Error())
+	} else if res, err := GetGlobalVariables(testEndpoint1, "expire_logs_days"); err != nil {
+		t.Errorf("Test SetGlobalVariable error: %s", err.Error())
+	} else if res["expire_logs_days"] != strconv.Itoa(expireLogsDays) {
+		t.Errorf("Test SetGlobalVariable failed: actual expire_logs_days is %s, expected 100", res["expire_logs_days"])
+	}
+
+	if SetGlobalVariable(badEndpoint, "expire_logs_days", expireLogsDays) == nil {
+		t.Error("Set badEndpoint global variables should cause error")
+	}
+
+	if err := SetGlobalVariable(unregisteredEndpoint, "expire_logs_days", expireLogsDays); err != errNotRegistered {
+		t.Error("Set unregisteredEndpoint global variables should throw errNotRegistered")
+	}
+
+	if err := SetGlobalVariable(testEndpoint1, ";drop mysql", expireLogsDays); err != errKeyInvalid {
+		t.Error("Set global variables with invalid key should throw errKeyInvalid")
+	}
 }
 
 func TestGetInndoDBStatus(t *testing.T) {
+	if _, err := GetInnoDBStatus(testEndpoint1); err != nil {
+		t.Errorf("Test GetInndoDBStatus error: %s", err.Error())
+	}
 
-}
-
-func TestReplicaRelatived(t *testing.T) {
-
+	if _, err := GetInnoDBStatus(badEndpoint); err == nil {
+		t.Error("Get badEndpoint innodb engine status should cause error")
+	}
 }
