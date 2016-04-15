@@ -117,3 +117,50 @@ func TestChangeMasterTo(t *testing.T) {
 	}
 	ResetSlave(testEndpoint2, true)
 }
+
+func TestStartStopResetSlave(t *testing.T) {
+	if err := ChangeMasterTo(testEndpoint2, testEndpoint1, false); err != nil {
+		t.Errorf("Test TestStartSlave testEndpoint2->testEndpoint1 error: %s", err.Error())
+	}
+
+	if StartSlave(unregisteredEndpoint) != errNotRegistered {
+		t.Errorf("Test TestStartSlave unregisteredEndpoint error: should return errNotRegistered")
+	}
+	if StartSlave(badEndpoint) == nil {
+		t.Errorf("Test TestStartSlave badEndpoint error: should return error")
+	}
+	if err := StartSlave(testEndpoint2); err != nil {
+		t.Errorf("Test TestStartSlave testEndpoint1 error: %s", err.Error())
+	}
+
+	if StopSlave(unregisteredEndpoint) != errNotRegistered {
+		t.Errorf("Test TestStopSlave unregisteredEndpoint error: should return errNotRegistered")
+	}
+	if StopSlave(badEndpoint) == nil {
+		t.Errorf("Test TestStopSlave badEndpoint error: should return error")
+	}
+	if err := StopSlave(testEndpoint2); err != nil {
+		t.Errorf("Test TestStopSlave testEndpoint1 error: %s", err.Error())
+	}
+
+	if ResetSlave(unregisteredEndpoint, false) != errNotRegistered {
+		t.Errorf("Test TestResetSlave unregisteredEndpoint error: should return errNotRegistered")
+	}
+	if ResetSlave(badEndpoint, false) == nil {
+		t.Errorf("Test ResetSlave badEndpoint error: should return error")
+	}
+	if err := ResetSlave(testEndpoint2, false); err != nil {
+		t.Errorf("Test ResetSlave testEndpoint1 error: %s", err.Error())
+	}
+
+	if ResetSlave(unregisteredEndpoint, true) != errNotRegistered {
+		t.Errorf("Test TestResetSlave with all unregisteredEndpoint error: should return errNotRegistered")
+	}
+	if ResetSlave(badEndpoint, true) == nil {
+		t.Errorf("Test ResetSlave with all badEndpoint error: should return error")
+	}
+	if err := ResetSlave(testEndpoint2, true); err != nil {
+		t.Errorf("Test ResetSlave with all testEndpoint1 error: %s", err.Error())
+	}
+
+}
