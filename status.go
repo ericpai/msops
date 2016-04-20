@@ -1,7 +1,7 @@
 package msops
 
 // Process represents one row data of processlist.
-// Based on 5.6.27-log MySQL Community Server.
+// Based on 5.6.30-log MySQL Community Server.
 //
 // Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/show-processlist.html
 type Process struct {
@@ -16,7 +16,7 @@ type Process struct {
 }
 
 // MasterStatus represents the master status of one endpoint.
-// Based on 5.6.27-log MySQL Community Server.
+// Based on 5.6.30-log MySQL Community Server.
 //
 // Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/show-master-status.html
 type MasterStatus struct {
@@ -28,7 +28,7 @@ type MasterStatus struct {
 }
 
 // SlaveStatus represents the slave status of one endpoint.
-// Based on 5.6.27-log MySQL Community Server.
+// Based on 5.6.30-log MySQL Community Server.
 //
 // Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/show-slave-status.html
 type SlaveStatus struct {
@@ -89,7 +89,7 @@ type SlaveStatus struct {
 }
 
 // InnoDBStatus represents the innodb engine status of one endpoint.
-// Based on 5.6.27-log MySQL Community Server.
+// Based on 5.6.30-log MySQL Community Server.
 //
 // Field specification can be found at https://dev.mysql.com/doc/refman/5.6/en/innodb-standard-monitor.html
 type InnoDBStatus struct {

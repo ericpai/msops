@@ -92,7 +92,7 @@ var (
 
 // Register registers the instance of endpoint with opening the connection with user 'dbaUser', password 'dbaPassword'.
 //
-// 'replUser' and 'replPassword' are used to be established replication by other endpoints.
+// 'replUser' and 'replPassword' are used to establish replication by other endpoints.
 //
 // 'params' are the k-v params appending to go-mysql-driver connection string.
 //
@@ -132,7 +132,7 @@ func Register(endpoint, dbaUser, dbaPassword, replUser, replPassword string, par
 	return nil
 }
 
-// Unregister deletes the information from msops's connection pool and close the connections to endpoint.
+// Unregister deletes the information from msops's connection pool and closes the connections to endpoint.
 func Unregister(endpoint string) {
 	if inst, exist := connectionPool[endpoint]; exist {
 		inst.connection.Close()

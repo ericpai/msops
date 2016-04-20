@@ -296,7 +296,7 @@ func GetProcessList(endpoint string) ([]Process, error) {
 	return processes, nil
 }
 
-// KillProcesses kills all the connection threads except the user is in whiteUsers.
+// KillProcesses kills all the connection threads except the ones of whiteUsers.
 func KillProcesses(endpoint string, whiteUsers ...string) error {
 	var inst *Instance
 	var exists bool
@@ -324,7 +324,7 @@ func KillProcesses(endpoint string, whiteUsers ...string) error {
 	return nil
 }
 
-// readDataSet executes the query string with placeholders replaced by args and returns the dataset
+// readDataSet executes the query string with placeholders replaced by args and returns the dataset.
 func readDataSet(endpoint, query string, args ...interface{}) ([]map[string]interface{}, error) {
 	var inst *Instance
 	var exists bool
