@@ -69,7 +69,7 @@ func ChangeMasterTo(slaveEndpoint, masterEndpoint string, useGTID bool) error {
 		return err
 	}
 	if useGTID {
-		_, err = slaveInst.connection.Exec("CHANGE MASTER TO MASTER_HOST=?, MASTER_USER=?, MASTER_PASSWORD=?, MASTER_AUTO_POSITION=1",
+		_, err = slaveInst.connection.Exec("CHANGE MASTER TO MASTER_HOST=?, MASTER_PORT=?, MASTER_USER=?, MASTER_PASSWORD=?, MASTER_AUTO_POSITION=1",
 			host, port, masterInst.replUser, masterInst.replPassword)
 	} else if masterSt, e := GetMasterStatus(masterEndpoint); e != nil {
 		return e
