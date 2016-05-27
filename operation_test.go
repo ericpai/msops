@@ -3,6 +3,7 @@ package msops
 import (
 	"net"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -18,7 +19,7 @@ func TestReadDataSet(t *testing.T) {
 			t.Errorf("Test readDataSet failed: actual colcount %d, expected 2", len(row))
 		} else if val, exist := row["name"]; !exist {
 			t.Error("Test readDataSet failed: col 'name' is not found")
-		} else if actData := getString(val); actData != "world" {
+		} else if actData := val; actData != "world" {
 			t.Errorf("Test readDataSet failed: actual value of col 'name' is %s, expected hello", actData)
 		} else if val, exist = row["id"]; !exist {
 			t.Error("Test readDataSet failed: col 'id' is not found")
@@ -34,7 +35,7 @@ func TestReadDataSet(t *testing.T) {
 func TestGetMasterStatus(t *testing.T) {
 	if masterSt, err := GetMasterStatus(testEndpoint1); err != nil {
 		t.Errorf("Test GetMasterStatus error: %s", err.Error())
-	} else if masterSt.File != "binlog.000001" {
+	} else if !strings.HasPrefix(masterSt.File, "binlog.") {
 		t.Errorf("Test GetMasterStatus failed: actual master log file %s, expected binlog.000001", masterSt.File)
 	}
 
